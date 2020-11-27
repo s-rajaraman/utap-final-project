@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "656558057444",
+    "firebase_url": "https://listman-37be7.firebaseio.com",
+    "project_id": "listman-37be7",
+    "storage_bucket": "listman-37be7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656558057444:android:becab50dc3925aece989f1",
+        "android_client_info": {
+          "package_name": "edu.utap.rasriram.listman"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "656558057444-j9ku0mettuad4oe7qt63tu00sampcnvt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADpKo_PGd3l29kuagxISL6GId6xvFsSAU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "656558057444-j9ku0mettuad4oe7qt63tu00sampcnvt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
