@@ -26,6 +26,7 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
         if (user != null) {
             project.rowID = db.collection("projects").document().id
             db.collection("projects/${user.uid}/project").add(project)
+            readProjects()
         }
     }
 
@@ -33,12 +34,15 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
     fun readProjects() {
         if (user != null) {
             db
-            .collection("projects")
+            .collection("projects/${user.uid}/project")
             .get()
             .addOnSuccessListener { result ->
-                projects.value = result.documents.mapNotNull {
-                    it.toObject(Project::class.java)
+                val projectList = result.documents.mapNotNull {
+                    val obj = it.toObject(Project::class.java)
+                    Log.d("", "${obj?.title}")
+                    obj
                 }
+                projects.postValue(projectList)
             }
         }
     }
