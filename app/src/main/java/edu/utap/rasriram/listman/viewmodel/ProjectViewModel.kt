@@ -25,7 +25,7 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
     fun saveProject(project: Project) {
         if (user != null) {
             project.rowID = db.collection("projects").document().id
-            db.collection("projects/${user.uid}/project").add(project)
+            db.collection("projects/${user.uid}/project").document(project.rowID).set(project)
             readProjects()
         }
     }
@@ -50,5 +50,19 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
     fun observeProjects(): MutableLiveData<List<Project>> {
         return projects
 
+    }
+
+    fun removeProject(project: Project) {
+        if (user != null) {
+            db
+                .collection("projects/${user.uid}/project")
+                .document(project.rowID)
+                .delete()
+                .addOnSuccessListener {
+                    Log.d(TAG, "DocumentSnapshot successfully deleted!")
+                    readProjects()
+                }
+                .addOnFailureListener {  e -> Log.w(TAG, "Error deleting document", e)  }
+        }
     }
 }
