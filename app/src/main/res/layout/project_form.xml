@@ -3,16 +3,35 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Project Name"
         android:singleLine="true"
+
         android:id="@+id/projectTitle"
         />
 
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:id="@+id/tags"
+        />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Tags"
+        android:maxLines="1"
+        android:imeActionId="666"
+        android:singleLine="true"
+        android:id="@+id/projectTagsET"
+        android:imeOptions="actionGo"
+        />
 
 
 </LinearLayout>

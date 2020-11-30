@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.TextView
@@ -20,9 +22,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import edu.utap.rasriram.listman.R
+import edu.utap.rasriram.listman.R.id.tags
 import edu.utap.rasriram.listman.adapter.ProjectAdapter
 import edu.utap.rasriram.listman.model.Project
+import edu.utap.rasriram.listman.model.Task
 import edu.utap.rasriram.listman.viewmodel.ProjectViewModel
+import kotlin.Array as Array1
 
 
 class ProjectFragment : Fragment(R.layout.fragment_project) {
@@ -58,30 +63,44 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
         val fab = view.findViewById<FloatingActionButton>(R.id.fab)
 
         fab.setOnClickListener {
+            parentFragmentManager.beginTransaction().replace(R.id.main_content, TaskFragment()).commitNow()
             fragmentManager?.let { _ ->
                 context?.let { it2 ->
 
-                    val dialog = inflater.inflate(R.layout.project_form, null)
+                 //   val dialog = inflater.inflate(R.layout.project_form, null)
 
-                    val projectTile = dialog.findViewById<EditText>(R.id.projectTitle)
+                 //   val projectTile = dialog.findViewById<EditText>(R.id.projectTitle)
+                 //   val tagET = dialog.findViewById<EditText>(R.id.projectTagsET)
+                 //   val tagsLV = dialog.findViewById<ListView>(tags)
 
-                    MaterialAlertDialogBuilder(
-                        it2,
-                        R.style.MaterialComponents_MaterialAlertDialog
-                    ).setView(dialog)
-                        .setPositiveButton(
-                            R.string.ok
-                        ) { _, _ ->
-                            projectTile.text.toString()
-                            viewModel.saveProject(Project(title = projectTile.text.toString()))
+                 //   val arrayAdapter = ArrayAdapter<String>(dialog.context, R.layout.tags)
+                 //   tagsLV.adapter = arrayAdapter
 
-                        }
-                        .setNegativeButton(
-                            R.string.cancel
-                        ) { _, _ ->
+                 //   tagET.setOnEditorActionListener { textView, i, keyEvent ->
+                 //       if(keyEvent.keyCode == 66) {
+                 //           arrayAdapter.add(textView.text.toString())
+                 //           return@setOnEditorActionListener true
+                 //       }
+                 //       return@setOnEditorActionListener false
+                 //   }
 
-                        }
-                        .show()
+                 //   MaterialAlertDialogBuilder(
+                 //       it2,
+                 //       R.style.MaterialComponents_MaterialAlertDialog
+                 //   ).setView(dialog)
+                 //       .setPositiveButton(
+                 //           R.string.ok
+                 //       ) { _, _ ->
+                 //           projectTile.text.toString()
+                 //           viewModel.saveProject(Project(title = projectTile.text.toString()))
+
+                 //       }
+                 //       .setNegativeButton(
+                 //           R.string.cancel
+                 //       ) { _, _ ->
+
+                 //       }
+                 //       .show()
                 }
 
             }
@@ -125,3 +144,4 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
 
     }
 }
+
