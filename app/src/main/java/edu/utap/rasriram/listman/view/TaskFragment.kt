@@ -9,8 +9,11 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import edu.utap.rasriram.listman.R
@@ -34,6 +37,13 @@ class TaskFragment : Fragment(R.layout.task_view) {
         project.rowID = viewModel.getRowId()
         initTag(view)
         initTitle(view)
+
+
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                parentFragmentManager.popBackStackImmediate()
+            }
+        })
         return view
     }
 

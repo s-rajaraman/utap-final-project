@@ -54,56 +54,17 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
             }
         })
 
-
-
         return view
     }
 
     private fun initFAB(view: View, inflater: LayoutInflater) {
         val fab = view.findViewById<FloatingActionButton>(R.id.fab)
-
         fab.setOnClickListener {
-            parentFragmentManager.beginTransaction().replace(R.id.main_content, TaskFragment()).commitNow()
-            fragmentManager?.let { _ ->
-                context?.let { it2 ->
-
-                 //   val dialog = inflater.inflate(R.layout.project_form, null)
-
-                 //   val projectTile = dialog.findViewById<EditText>(R.id.projectTitle)
-                 //   val tagET = dialog.findViewById<EditText>(R.id.projectTagsET)
-                 //   val tagsLV = dialog.findViewById<ListView>(tags)
-
-                 //   val arrayAdapter = ArrayAdapter<String>(dialog.context, R.layout.tags)
-                 //   tagsLV.adapter = arrayAdapter
-
-                 //   tagET.setOnEditorActionListener { textView, i, keyEvent ->
-                 //       if(keyEvent.keyCode == 66) {
-                 //           arrayAdapter.add(textView.text.toString())
-                 //           return@setOnEditorActionListener true
-                 //       }
-                 //       return@setOnEditorActionListener false
-                 //   }
-
-                 //   MaterialAlertDialogBuilder(
-                 //       it2,
-                 //       R.style.MaterialComponents_MaterialAlertDialog
-                 //   ).setView(dialog)
-                 //       .setPositiveButton(
-                 //           R.string.ok
-                 //       ) { _, _ ->
-                 //           projectTile.text.toString()
-                 //           viewModel.saveProject(Project(title = projectTile.text.toString()))
-
-                 //       }
-                 //       .setNegativeButton(
-                 //           R.string.cancel
-                 //       ) { _, _ ->
-
-                 //       }
-                 //       .show()
-                }
-
-            }
+            parentFragmentManager
+                .beginTransaction()
+                .replace(R.id.main_content, TaskFragment())
+                .addToBackStack("project")
+                .commit()
         }
     }
 
