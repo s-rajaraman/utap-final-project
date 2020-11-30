@@ -24,10 +24,16 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
 
     fun saveProject(project: Project) {
         if (user != null) {
-            project.rowID = db.collection("projects").document().id
+            if(project.rowID == ""){
+                project.rowID = db.collection("projects").document().id
+            }
             db.collection("projects/${user.uid}/project").document(project.rowID).set(project)
             readProjects()
         }
+    }
+
+    fun getRowId(): String {
+        return db.collection("projects").document().id
     }
 
 

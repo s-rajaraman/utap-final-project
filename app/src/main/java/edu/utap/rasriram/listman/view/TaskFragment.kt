@@ -21,7 +21,6 @@ import edu.utap.rasriram.listman.viewmodel.ProjectViewModel
 class TaskFragment : Fragment(R.layout.task_view) {
     private val viewModel: ProjectViewModel by activityViewModels()
     private lateinit var adapter: ProjectAdapter
-    private lateinit var projects: MutableLiveData<List<Project>>
     private var project = Project()
 
     override fun onCreateView(
@@ -32,8 +31,18 @@ class TaskFragment : Fragment(R.layout.task_view) {
         val view: View =
             inflater.inflate(R.layout.task_view, container, false)
 
+        project.rowID = viewModel.getRowId()
         initTag(view)
+        initTitle(view)
         return view
+    }
+
+    private fun initTitle(view: View) {
+        val titleET = view.findViewById<EditText>(R.id.titleET)
+        titleET.setOnFocusChangeListener { textView, b ->
+            project.title = titleET.text.toString()
+            viewModel.saveProject(project)
+        }
     }
 
     private fun initTag(view: View) {
@@ -45,8 +54,6 @@ class TaskFragment : Fragment(R.layout.task_view) {
             editText.requestFocus()
             editText.setOnEditorActionListener { textView, i, keyEvent ->
                 if (keyEvent.keyCode == 66) {
-
-
                     val tv = TextView(view.context)
                     tv.text = editText.text.toString()
                     val params = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
@@ -59,11 +66,16 @@ class TaskFragment : Fragment(R.layout.task_view) {
 
                     tv.setOnLongClickListener { l ->
                         linearLayout.removeView(l)
-                        //TODO: Update DB
+                        project.tags.remove(tv.text.toString())
+                        viewModel.saveProject(project)
                         return@setOnLongClickListener true
                     }
 
-                    //TODO: Update DB
+                    if(tv.text.toString() != "") {
+                        project.tags.add(tv.text.toString())
+                        viewModel.saveProject(project)
+                    }
+
                     linearLayout.addView(tv, linearLayout.childCount - 1)
                     editText.text.clear()
 
@@ -72,6 +84,5 @@ class TaskFragment : Fragment(R.layout.task_view) {
                 return@setOnEditorActionListener false
             }
         }
-
     }
 }
