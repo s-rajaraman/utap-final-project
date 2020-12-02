@@ -44,7 +44,7 @@ class TaskFragment(private val project: Project) : Fragment(R.layout.task_view) 
         }
         tasks = viewModel.observeTasks()
         initTag(view)
-        initTitle(view, project)
+        initTitle(view)
         initFAB(view)
         initList(view)
 
@@ -93,7 +93,7 @@ class TaskFragment(private val project: Project) : Fragment(R.layout.task_view) 
         }
     }
 
-    private fun initTitle(view: View, project: Project) {
+    private fun initTitle(view: View) {
         val titleET = view.findViewById<EditText>(R.id.titleET)
         titleET.setOnFocusChangeListener { textView, b ->
             project.title = titleET.text.toString()
@@ -105,6 +105,20 @@ class TaskFragment(private val project: Project) : Fragment(R.layout.task_view) 
 
     private fun initTag(view: View) {
         val tagBadge = view.findViewById<TextView>(R.id.tag_badge)
+
+        for (t in project.tags) {
+            val tv = TextView(view.context)
+            tv.text = t
+            val params = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+            params.setMargins(4, 0, 4, 0)
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15F)
+            tv.background = ContextCompat.getDrawable(view.context, R.drawable.tag_style)
+            tv.layoutParams = params
+
+            val linearLayout = view.findViewById<LinearLayout>(R.id.tagsLayout)
+            linearLayout.addView(tv, linearLayout.childCount - 1)
+
+        }
 
         tagBadge.setOnClickListener { l ->
             val editText = view.findViewById<EditText>(R.id.tagsET)
