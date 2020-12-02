@@ -66,9 +66,8 @@ class TaskFragment : Fragment(R.layout.task_view) {
         viewModel
             .observeTasks()
             .observe(viewLifecycleOwner, {
-               adapter.submitList(
-                    it.filter { it1 -> project.rowID == it1.projectId }
-                )
+                val tasks = it.filter { it1 -> project.rowID == it1.projectId }
+                adapter.submitList(tasks)
                 adapter.notifyDataSetChanged()
             })
     }
