@@ -62,14 +62,14 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
         fab.setOnClickListener {
             parentFragmentManager
                 .beginTransaction()
-                .replace(R.id.main_content, TaskFragment())
+                .replace(R.id.main_content, TaskFragment(Project()))
                 .addToBackStack("project")
                 .commit()
         }
     }
 
     private fun initRecyclerView(root: View) {
-        adapter = ProjectAdapter(viewModel)
+        adapter = ProjectAdapter(parentFragmentManager)
         projects = viewModel.observeProjects()
         viewModel.readProjects()
 

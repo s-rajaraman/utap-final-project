@@ -25,10 +25,9 @@ import edu.utap.rasriram.listman.model.Project
 import edu.utap.rasriram.listman.model.Task
 import edu.utap.rasriram.listman.viewmodel.ProjectViewModel
 
-class TaskFragment : Fragment(R.layout.task_view) {
+class TaskFragment(private val project: Project) : Fragment(R.layout.task_view) {
     private val viewModel: ProjectViewModel by activityViewModels()
     private lateinit var adapter: TaskAdapter
-    private var project = Project()
     private lateinit var tasks: MutableLiveData<List<Task>>
 
     override fun onCreateView(
@@ -40,10 +39,12 @@ class TaskFragment : Fragment(R.layout.task_view) {
             inflater.inflate(R.layout.task_view, container, false)
 
         adapter = TaskAdapter(viewModel)
-        project.rowID = viewModel.getRowId()
+        if(project.rowID.isEmpty()){
+            project.rowID = viewModel.getRowId()
+        }
         tasks = viewModel.observeTasks()
         initTag(view)
-        initTitle(view)
+        initTitle(view, project)
         initFAB(view)
         initList(view)
 
@@ -55,6 +56,7 @@ class TaskFragment : Fragment(R.layout.task_view) {
                     parentFragmentManager.popBackStackImmediate()
                 }
             })
+        viewModel.readTasks()
         return view
     }
 
@@ -91,12 +93,14 @@ class TaskFragment : Fragment(R.layout.task_view) {
         }
     }
 
-    private fun initTitle(view: View) {
+    private fun initTitle(view: View, project: Project) {
         val titleET = view.findViewById<EditText>(R.id.titleET)
         titleET.setOnFocusChangeListener { textView, b ->
             project.title = titleET.text.toString()
             viewModel.saveProject(project)
         }
+
+        titleET.setText(project.title)
     }
 
     private fun initTag(view: View) {
