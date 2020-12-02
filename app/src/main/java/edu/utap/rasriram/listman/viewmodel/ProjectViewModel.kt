@@ -9,6 +9,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import edu.utap.rasriram.listman.model.Project
+import edu.utap.rasriram.listman.model.Task
 
 private var db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
@@ -19,6 +20,7 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
     val user = mAuth.currentUser
 
     private var projects = MutableLiveData<List<Project>>()
+    private var tasks = MutableLiveData<List<Task>>()
 
     companion object { }
 
@@ -70,5 +72,35 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
                 }
                 .addOnFailureListener {  e -> Log.w(TAG, "Error deleting document", e)  }
         }
+    }
+
+    fun saveTask(task: Task) {
+        if (user != null) {
+            if(task.rowID == ""){
+                task.rowID = db.collection("tasks").document().id
+            }
+            db.collection("projects/${user.uid}/task").document(task.rowID).set(task)
+            readTasks()
+        }
+    }
+
+    fun readTasks() {
+        if (user != null) {
+            db
+                .collection("projects/${user.uid}/task")
+                .get()
+                .addOnSuccessListener { result ->
+                    val taskList = result.documents.mapNotNull {
+                        val obj = it.toObject(Task::class.java)
+                        Log.d("", "${obj?.title}")
+                        obj
+                    }
+                    tasks.postValue(taskList)
+                }
+        }
+    }
+
+    fun observeTasks(): MutableLiveData<List<Task>> {
+        return tasks
     }
 }

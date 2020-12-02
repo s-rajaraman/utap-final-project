@@ -10,20 +10,22 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.MutableLiveData
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import edu.utap.rasriram.listman.R
-import edu.utap.rasriram.listman.adapter.ProjectAdapter
+import edu.utap.rasriram.listman.adapter.TaskAdapter
 import edu.utap.rasriram.listman.model.Project
+import edu.utap.rasriram.listman.model.Task
 import edu.utap.rasriram.listman.viewmodel.ProjectViewModel
 
 class TaskFragment : Fragment(R.layout.task_view) {
     private val viewModel: ProjectViewModel by activityViewModels()
-    private lateinit var adapter: ProjectAdapter
+    private lateinit var adapter: TaskAdapter
     private var project = Project()
 
     override fun onCreateView(
@@ -34,17 +36,53 @@ class TaskFragment : Fragment(R.layout.task_view) {
         val view: View =
             inflater.inflate(R.layout.task_view, container, false)
 
+        adapter = TaskAdapter(viewModel)
         project.rowID = viewModel.getRowId()
         initTag(view)
         initTitle(view)
+        initFAB(view)
+        initList(view)
 
 
-        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                parentFragmentManager.popBackStackImmediate()
-            }
-        })
+        activity?.onBackPressedDispatcher?.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    parentFragmentManager.popBackStackImmediate()
+                }
+            })
         return view
+    }
+
+    private fun initList(view: View) {
+        val rv = view.findViewById<RecyclerView>(R.id.list_view)
+        rv.adapter = adapter
+        rv.layoutManager = LinearLayoutManager(context)
+
+        val itemDecor = DividerItemDecoration(rv.context, LinearLayoutManager.VERTICAL)
+        itemDecor.setDrawable(ContextCompat.getDrawable(rv.context, (R.drawable.divider))!!)
+        rv.addItemDecoration(itemDecor)
+
+        viewModel
+            .observeTasks()
+            .observe(viewLifecycleOwner, {
+               adapter.submitList(
+                    it.filter { it1 -> project.rowID == it1.projectId }
+                )
+                adapter.notifyDataSetChanged()
+            })
+    }
+
+    private fun initFAB(view: View) {
+        val fab = view.findViewById<FloatingActionButton>(R.id.fab)
+        val list = view.findViewById<RecyclerView>(R.id.list_view)
+        list.adapter = adapter
+
+        fab.setOnClickListener { l ->
+            val task = Task(rowID = viewModel.getRowId(), projectId = project.rowID)
+            viewModel.saveTask(task)
+
+        }
     }
 
     private fun initTitle(view: View) {
@@ -81,7 +119,7 @@ class TaskFragment : Fragment(R.layout.task_view) {
                         return@setOnLongClickListener true
                     }
 
-                    if(tv.text.toString() != "") {
+                    if (tv.text.toString() != "") {
                         project.tags.add(tv.text.toString())
                         viewModel.saveProject(project)
                     }

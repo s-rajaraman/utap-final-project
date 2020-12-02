@@ -8,6 +8,6 @@ data class Task(
     var description: String? = null,
     @ServerTimestamp val deadline: Timestamp? = null,
     var rowID: String = "",
-    var tags: ArrayList<String>? = null,
+    var tags: ArrayList<String> = arrayListOf(),
     var projectId: String = ""
 )
