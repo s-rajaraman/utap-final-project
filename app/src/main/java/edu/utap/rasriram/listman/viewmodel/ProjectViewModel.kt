@@ -103,4 +103,19 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
     fun observeTasks(): MutableLiveData<List<Task>> {
         return tasks
     }
+
+    fun removeTask(task: Task) {
+        if (user != null) {
+            db
+                .collection("projects/${user.uid}/task")
+                .document(task.rowID)
+                .delete()
+                .addOnSuccessListener {
+                    Log.d(TAG, "DocumentSnapshot successfully deleted!")
+                    readTasks()
+                }
+                .addOnFailureListener {  e -> Log.w(TAG, "Error deleting document", e)  }
+        }
+
+    }
 }

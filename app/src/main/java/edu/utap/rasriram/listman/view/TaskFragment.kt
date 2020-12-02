@@ -13,7 +13,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -27,6 +29,7 @@ class TaskFragment : Fragment(R.layout.task_view) {
     private val viewModel: ProjectViewModel by activityViewModels()
     private lateinit var adapter: TaskAdapter
     private var project = Project()
+    private lateinit var tasks: MutableLiveData<List<Task>>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,6 +41,7 @@ class TaskFragment : Fragment(R.layout.task_view) {
 
         adapter = TaskAdapter(viewModel)
         project.rowID = viewModel.getRowId()
+        tasks = viewModel.observeTasks()
         initTag(view)
         initTitle(view)
         initFAB(view)
@@ -62,6 +66,9 @@ class TaskFragment : Fragment(R.layout.task_view) {
         val itemDecor = DividerItemDecoration(rv.context, LinearLayoutManager.VERTICAL)
         itemDecor.setDrawable(ContextCompat.getDrawable(rv.context, (R.drawable.divider))!!)
         rv.addItemDecoration(itemDecor)
+
+        val itemTouchHelper = ItemTouchHelper(SwipeToDelete())
+        itemTouchHelper.attachToRecyclerView(rv)
 
         viewModel
             .observeTasks()
@@ -131,5 +138,26 @@ class TaskFragment : Fragment(R.layout.task_view) {
                 return@setOnEditorActionListener false
             }
         }
+    }
+
+
+    inner class SwipeToDelete : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            return false
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            val task = tasks.value
+            task?.let {
+                val pos = viewHolder.adapterPosition
+                viewModel.removeTask(it[pos])
+            }
+
+        }
+
     }
 }
