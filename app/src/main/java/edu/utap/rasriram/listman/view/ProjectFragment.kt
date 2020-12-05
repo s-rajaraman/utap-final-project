@@ -41,9 +41,11 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
         initFAB(view)
         initInbox(view)
 
+        projects = viewModel.observeProjects()
         projects.observe(viewLifecycleOwner, {
-            if (!it.isNullOrEmpty()) {
+            it?.let {
                 adapter.submitList(it.filter { x -> !x.isDefault })
+                adapter.notifyDataSetChanged()
             }
         })
 
@@ -134,17 +136,20 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
             actionState: Int,
             isCurrentlyActive: Boolean
         ) {
-            val itemView = viewHolder.itemView
 
-            val background = ColorDrawable(Color.RED)
-            background.setBounds(
-                itemView.right + dX.toInt(),
-                itemView.top,
-                itemView.right,
-                itemView.bottom
-            )
+            if (isCurrentlyActive) {
+                val itemView = viewHolder.itemView
 
-            background.draw(c)
+                val background = ColorDrawable(Color.RED)
+                background.setBounds(
+                    itemView.right + dX.toInt(),
+                    itemView.top,
+                    itemView.right,
+                    itemView.bottom
+                )
+
+                background.draw(c)
+            }
 
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         }

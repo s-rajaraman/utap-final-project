@@ -1,5 +1,7 @@
 package edu.utap.rasriram.listman.view
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -74,6 +76,9 @@ class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) 
 
         val itemTouchHelper = ItemTouchHelper(SwipeToDelete())
         itemTouchHelper.attachToRecyclerView(rv)
+
+        val swipeToMove = ItemTouchHelper(SwipeToMove())
+        swipeToMove.attachToRecyclerView(rv)
 
         viewModel
             .observeTasks()
@@ -182,6 +187,64 @@ class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) 
         }
     }
 
+    inner class SwipeToMove: ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            return false
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            val taskList = tasks.value
+            val projects = viewModel.observeProjects().value
+
+            taskList?.let {
+
+                val task = it[viewHolder.adapterPosition]
+
+                projects?.let { p ->
+                    val alertDialog = AlertDialog.Builder(activity)
+                        .setItems(p.map { it.title }.toTypedArray())
+                        { dialog, which ->
+
+                            task.projectId = p[which].rowID
+                            viewModel.saveTask(task)
+
+                            adapter.notifyDataSetChanged()
+                            print("hello")
+                        }
+                        .create()
+
+                    alertDialog.show()
+                }
+            }
+
+        }
+
+        override fun onChildDraw(
+            c: Canvas,
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            dX: Float,
+            dY: Float,
+            actionState: Int,
+            isCurrentlyActive: Boolean
+        ) {
+            if(isCurrentlyActive) {
+                val itemView = viewHolder.itemView
+
+                val color = Color.parseColor("#89cff0")
+                val background = ColorDrawable(color)
+                background.setBounds(itemView.left , itemView.top, itemView.left + dX.toInt(), itemView.bottom)
+
+                background.draw(c)
+            }
+
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+        }
+    }
 
     inner class SwipeToDelete : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
         override fun onMove(
