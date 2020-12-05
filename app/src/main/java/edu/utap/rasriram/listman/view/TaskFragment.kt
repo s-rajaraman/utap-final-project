@@ -1,5 +1,8 @@
 package edu.utap.rasriram.listman.view
 
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -25,7 +28,7 @@ import edu.utap.rasriram.listman.model.Project
 import edu.utap.rasriram.listman.model.Task
 import edu.utap.rasriram.listman.viewmodel.ProjectViewModel
 
-class TaskFragment(private val project: Project) : Fragment(R.layout.task_view) {
+class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) {
     private val viewModel: ProjectViewModel by activityViewModels()
     private lateinit var adapter: TaskAdapter
     private lateinit var tasks: MutableLiveData<List<Task>>
@@ -95,12 +98,18 @@ class TaskFragment(private val project: Project) : Fragment(R.layout.task_view) 
 
     private fun initTitle(view: View) {
         val titleET = view.findViewById<EditText>(R.id.titleET)
-        titleET.setOnFocusChangeListener { textView, b ->
-            project.title = titleET.text.toString()
-            viewModel.saveProject(project)
-        }
-
         titleET.setText(project.title)
+        if(project.isDefault) {
+           titleET.isEnabled = false
+        }
+        else {
+
+            titleET.setOnFocusChangeListener { textView, b ->
+                project.title = titleET.text.toString()
+                viewModel.saveProject(project)
+            }
+
+        }
     }
 
     private fun initTag(view: View) {
@@ -118,6 +127,13 @@ class TaskFragment(private val project: Project) : Fragment(R.layout.task_view) 
             val linearLayout = view.findViewById<LinearLayout>(R.id.tagsLayout)
             linearLayout.addView(tv, linearLayout.childCount - 1)
 
+            tv.setOnLongClickListener { l ->
+                linearLayout.removeView(l)
+                project.tags.remove(t)
+                viewModel.saveProject(project)
+                return@setOnLongClickListener true
+            }
+
         }
 
         tagBadge.setOnClickListener { l ->
@@ -126,8 +142,16 @@ class TaskFragment(private val project: Project) : Fragment(R.layout.task_view) 
             editText.requestFocus()
             editText.setOnEditorActionListener { textView, i, keyEvent ->
                 if (keyEvent.keyCode == 66) {
+                    val enteredText = editText.text.toString()
+                    val tag = when(enteredText.length) {
+                        0 -> return@setOnEditorActionListener false
+                        1 -> " $enteredText "
+                        2 -> "$enteredText "
+                        else -> enteredText
+
+                    }
                     val tv = TextView(view.context)
-                    tv.text = editText.text.toString()
+                    tv.text = tag
                     val params = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
                     params.setMargins(4, 0, 4, 0)
                     tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15F)
@@ -138,13 +162,13 @@ class TaskFragment(private val project: Project) : Fragment(R.layout.task_view) 
 
                     tv.setOnLongClickListener { l ->
                         linearLayout.removeView(l)
-                        project.tags.remove(tv.text.toString())
+                        project.tags.remove(tag)
                         viewModel.saveProject(project)
                         return@setOnLongClickListener true
                     }
 
                     if (tv.text.toString() != "") {
-                        project.tags.add(tv.text.toString())
+                        project.tags.add(tag)
                         viewModel.saveProject(project)
                     }
 
@@ -177,5 +201,23 @@ class TaskFragment(private val project: Project) : Fragment(R.layout.task_view) 
 
         }
 
+        override fun onChildDraw(
+            c: Canvas,
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            dX: Float,
+            dY: Float,
+            actionState: Int,
+            isCurrentlyActive: Boolean
+        ) {
+            val itemView = viewHolder.itemView
+
+            val background = ColorDrawable(Color.RED)
+            background.setBounds(itemView.right + dX.toInt(), itemView.top, itemView.right, itemView.bottom)
+
+            background.draw(c)
+
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+        }
     }
 }

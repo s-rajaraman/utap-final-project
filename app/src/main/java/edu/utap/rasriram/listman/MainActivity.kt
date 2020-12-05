@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager
                 .beginTransaction()
                 .add(R.id.main_content, fragment)
-                .addToBackStack("home")
                 .commit()
         }
         actionBar?.title = "Projects"

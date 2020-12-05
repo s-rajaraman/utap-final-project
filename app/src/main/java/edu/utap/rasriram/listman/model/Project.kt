@@ -6,5 +6,7 @@ import com.google.firebase.firestore.ServerTimestamp
 data class Project (
     var title: String? = null,
     var rowID: String = "",
-    var tags: ArrayList<String> = arrayListOf()
-)
+    var tags: ArrayList<String> = arrayListOf(),
+    var isDefault: Boolean = false
+) {
+}

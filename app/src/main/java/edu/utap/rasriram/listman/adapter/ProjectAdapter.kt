@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 import edu.utap.rasriram.listman.R
 import edu.utap.rasriram.listman.model.Project
 import edu.utap.rasriram.listman.view.TaskFragment
-import edu.utap.rasriram.listman.viewmodel.ProjectViewModel
 
 class ProjectAdapter(private val parentFragmentManager: FragmentManager) :
     ListAdapter<Project, ProjectAdapter.VH>(Diff()) {
@@ -30,7 +29,7 @@ class ProjectAdapter(private val parentFragmentManager: FragmentManager) :
         private var titleTv = itemView.findViewById<TextView>(R.id.tv)
 
         fun bind(item: Project?) {
-            if (item != null) {
+            if (item != null && !item.isDefault) {
                 titleTv.text = item.title
 
                 titleTv.setOnClickListener { l ->
@@ -41,7 +40,6 @@ class ProjectAdapter(private val parentFragmentManager: FragmentManager) :
                         .commit()
                 }
             }
-
         }
     }
 

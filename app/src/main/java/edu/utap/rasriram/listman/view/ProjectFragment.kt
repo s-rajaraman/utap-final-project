@@ -1,39 +1,32 @@
 package edu.utap.rasriram.listman.view
 
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.ListView
-import android.widget.TextView
+import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.auth.FirebaseAuth
 import edu.utap.rasriram.listman.R
-import edu.utap.rasriram.listman.R.id.tags
 import edu.utap.rasriram.listman.adapter.ProjectAdapter
 import edu.utap.rasriram.listman.model.Project
-import edu.utap.rasriram.listman.model.Task
 import edu.utap.rasriram.listman.viewmodel.ProjectViewModel
-import kotlin.Array as Array1
 
 
 class ProjectFragment : Fragment(R.layout.fragment_project) {
     private val viewModel: ProjectViewModel by activityViewModels()
-    private lateinit var adapter : ProjectAdapter
-    private lateinit var projects : MutableLiveData<List<Project>>
+    private lateinit var adapter: ProjectAdapter
+    private lateinit var projects: MutableLiveData<List<Project>>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,19 +38,47 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
             inflater.inflate(R.layout.fragment_project, container, false)
 
         initRecyclerView(view)
-        initFAB(view, inflater)
+        initFAB(view)
+        initInbox(view)
 
         projects.observe(viewLifecycleOwner, {
-            if(!it.isNullOrEmpty()) {
-                view.findViewById<TextView>(R.id.infoTv).visibility = View.INVISIBLE
-                adapter.submitList(it)
+            if (!it.isNullOrEmpty()) {
+                adapter.submitList(it.filter { x -> !x.isDefault })
             }
         })
 
         return view
     }
 
-    private fun initFAB(view: View, inflater: LayoutInflater) {
+
+    private fun initInbox(view: View) {
+        val inboxLayout = view.findViewById<LinearLayout>(R.id.inboxLayout)
+
+        inboxLayout.setOnClickListener { l ->
+
+            val projectList = projects.value
+
+            val project = if (!projectList.isNullOrEmpty()) {
+                projectList.first { it.isDefault }
+            } else {
+                val p = Project(title = "Inbox", rowID = viewModel.getRowId(), isDefault = true)
+                viewModel.saveProject(p)
+                p
+            }
+
+
+            parentFragmentManager
+                .beginTransaction()
+                .replace(
+                    R.id.main_content,
+                    TaskFragment(project)
+                )
+                .addToBackStack("project")
+                .commit()
+        }
+    }
+
+    private fun initFAB(view: View) {
         val fab = view.findViewById<FloatingActionButton>(R.id.fab)
         fab.setOnClickListener {
             parentFragmentManager
@@ -97,10 +118,35 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
             val proj = projects.value
             proj?.let {
                 val pos = viewHolder.adapterPosition
-                viewModel.removeProject(it[pos])
+                val project = it[pos]
+                viewModel.removeProject(project)
             }
 
 
+        }
+
+        override fun onChildDraw(
+            c: Canvas,
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            dX: Float,
+            dY: Float,
+            actionState: Int,
+            isCurrentlyActive: Boolean
+        ) {
+            val itemView = viewHolder.itemView
+
+            val background = ColorDrawable(Color.RED)
+            background.setBounds(
+                itemView.right + dX.toInt(),
+                itemView.top,
+                itemView.right,
+                itemView.bottom
+            )
+
+            background.draw(c)
+
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         }
 
     }
