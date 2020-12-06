@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +17,10 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.wearable.PutDataRequest
+import com.google.android.gms.wearable.Wearable
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.FirebaseAuth
 import edu.utap.rasriram.listman.R
 import edu.utap.rasriram.listman.adapter.ProjectAdapter
 import edu.utap.rasriram.listman.model.Project
@@ -43,11 +47,28 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
 
         projects = viewModel.observeProjects()
         projects.observe(viewLifecycleOwner, {
-            it?.let {
-                adapter.submitList(it.filter { x -> !x.isDefault })
-                adapter.notifyDataSetChanged()
-            }
+            adapter.submitList(it.filter { x -> !x.isDefault })
+            adapter.notifyDataSetChanged()
         })
+
+
+        val user = FirebaseAuth.getInstance().currentUser
+        user?.getIdToken(true)?.addOnSuccessListener { r ->
+            context?.let {
+
+                val dataClient = Wearable.getDataClient(it)
+                dataClient.putDataItem(PutDataRequest.create("/token").setData( r?.token?.toByteArray())).addOnSuccessListener {
+                    Log.d("TAG", "Works")
+                }
+                    .addOnFailureListener {
+
+                        Log.d("TAG", "failed")
+                        Log.d("TAG", it.toString())
+
+                    }
+
+            }
+        }
 
         return view
     }
