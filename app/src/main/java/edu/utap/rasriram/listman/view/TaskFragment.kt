@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.TypedValue
@@ -240,6 +241,13 @@ class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) 
                 background.setBounds(itemView.left , itemView.top, itemView.left + dX.toInt(), itemView.bottom)
 
                 background.draw(c)
+
+                val y =   (itemView.top - itemView.bottom)/2 + itemView.bottom.toFloat() + 10
+
+                val paint = Paint()
+                paint.color = Color.WHITE
+                paint.textSize = 40f
+                c.drawText("Move", itemView.left.toFloat(), y, paint)
             }
 
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
@@ -279,6 +287,13 @@ class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) 
             background.setBounds(itemView.right + dX.toInt(), itemView.top, itemView.right, itemView.bottom)
 
             background.draw(c)
+
+            val y =   (itemView.top - itemView.bottom)/2 + itemView.bottom.toFloat() + 10
+
+            val paint = Paint()
+            paint.color = Color.WHITE
+            paint.textSize = 40f
+            c.drawText("Delete", itemView.right + dX, y, paint)
 
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         }

@@ -2,6 +2,7 @@ package edu.utap.rasriram.listman.view
 
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -149,6 +150,14 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
                 )
 
                 background.draw(c)
+
+                val y =   (itemView.top - itemView.bottom)/2 + itemView.bottom.toFloat() + 10
+
+                val paint = Paint()
+                paint.color = Color.WHITE
+                paint.textSize = 40f
+                c.drawText("Delete", itemView.right + dX, y, paint)
+
             }
 
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
