@@ -53,6 +53,9 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
                 projects.postValue(projectList)
             }
         }
+        else{
+            projects.postValue(arrayListOf())
+        }
     }
 
     fun observeProjects(): MutableLiveData<List<Project>> {
@@ -97,6 +100,9 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
                     }
                     tasks.postValue(taskList)
                 }
+        }
+        else{
+            tasks.postValue(arrayListOf())
         }
     }
 

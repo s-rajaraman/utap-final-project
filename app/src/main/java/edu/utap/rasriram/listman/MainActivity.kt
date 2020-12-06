@@ -2,14 +2,15 @@ package edu.utap.rasriram.listman
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import edu.utap.rasriram.listman.view.ProjectFragment
 import edu.utap.rasriram.listman.viewmodel.ProjectViewModel
-
-import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,18 +25,8 @@ class MainActivity : AppCompatActivity() {
 
         val user = mAuth.currentUser
         if (user == null) {
-            val providers = arrayListOf(
-                    AuthUI.IdpConfig.EmailBuilder().build())
-
-            // Create and launch sign-in intent
-            startActivityForResult(
-                    AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setAvailableProviders(providers)
-                            .build(),
-                    RESULT_OK)
-        }
-        else {
+            signIn()
+        } else {
             val fragment = ProjectFragment()
 
             supportFragmentManager
@@ -47,13 +38,75 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.title = "Projects"
     }
 
+    override fun onResume() {
+        super.onResume()
+        val mAuth = FirebaseAuth.getInstance()
+
+        val user = mAuth.currentUser
+
+        if(user == null){
+            signIn()
+        }
+    }
+
+    private fun signIn() {
+        val providers = arrayListOf(
+            AuthUI.IdpConfig.EmailBuilder().build()
+        )
+
+        // Create and launch sign-in intent
+        startActivityForResult(
+            AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .build(),
+            RESULT_OK
+        )
+    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val fragment = ProjectFragment()
+        val mAuth = FirebaseAuth.getInstance()
 
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.main_content, fragment)
-            .commit()
+        val user = mAuth.currentUser
+        if (user != null) {
+
+            val fragment = ProjectFragment()
+
+            supportFragmentManager
+                .beginTransaction()
+                .add(R.id.main_content, fragment)
+                .commit()
+        } else {
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.actionbar, menu)
+        return true
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_log_out -> {
+                FirebaseAuth.getInstance().signOut()
+
+                val providers = arrayListOf(
+                    AuthUI.IdpConfig.EmailBuilder().build()
+                )
+                viewModel.readProjects()
+                viewModel.readTasks()
+
+                startActivityForResult(
+                    AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(providers)
+                        .build(),
+                    RESULT_OK
+                )
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

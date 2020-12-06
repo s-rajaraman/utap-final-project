@@ -5,9 +5,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -54,6 +52,8 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
     }
 
 
+
+
     private fun initInbox(view: View) {
         val inboxLayout = view.findViewById<LinearLayout>(R.id.inboxLayout)
 
@@ -61,7 +61,7 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
 
             val projectList = projects.value
 
-            val project = if (!projectList.isNullOrEmpty()) {
+            val project = if (projectList != null && projectList.firstOrNull { it.isDefault } != null)  {
                 projectList.first { it.isDefault }
             } else {
                 val p = Project(title = "Inbox", rowID = viewModel.getRowId(), isDefault = true)

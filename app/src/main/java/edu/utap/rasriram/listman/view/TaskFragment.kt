@@ -203,19 +203,19 @@ class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) 
 
             taskList?.let {
 
-                val task = it[viewHolder.adapterPosition]
+                var task = it[viewHolder.adapterPosition]
 
                 projects?.let { p ->
                     val alertDialog = AlertDialog.Builder(activity)
-                        .setItems(p.map { it.title }.toTypedArray())
+                        .setItems(p.map { it1 -> it1.title }.toTypedArray())
                         { dialog, which ->
 
                             task.projectId = p[which].rowID
                             viewModel.saveTask(task)
 
                             adapter.notifyDataSetChanged()
-                            print("hello")
                         }
+                        .setCancelable(false)
                         .create()
 
                     alertDialog.show()
