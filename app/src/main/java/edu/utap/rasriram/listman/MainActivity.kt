@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import edu.utap.rasriram.listman.view.ProjectFragment
+import edu.utap.rasriram.listman.view.SearchFragment
 import edu.utap.rasriram.listman.viewmodel.ProjectViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -27,6 +28,8 @@ class MainActivity : AppCompatActivity() {
         if (user == null) {
             signIn()
         } else {
+            viewModel.readTasks()
+            viewModel.readProjects()
             val fragment = ProjectFragment()
 
             supportFragmentManager
@@ -44,7 +47,7 @@ class MainActivity : AppCompatActivity() {
 
         val user = mAuth.currentUser
 
-        if(user == null){
+        if (user == null) {
             signIn()
         }
     }
@@ -63,21 +66,16 @@ class MainActivity : AppCompatActivity() {
             RESULT_OK
         )
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val mAuth = FirebaseAuth.getInstance()
 
-        val user = mAuth.currentUser
-        if (user != null) {
+        val fragment = ProjectFragment()
 
-            val fragment = ProjectFragment()
-
-            supportFragmentManager
-                .beginTransaction()
-                .add(R.id.main_content, fragment)
-                .commit()
-        } else {
-        }
+        supportFragmentManager
+            .beginTransaction()
+            .add(R.id.main_content, fragment)
+            .commit()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -105,6 +103,15 @@ class MainActivity : AppCompatActivity() {
                         .build(),
                     RESULT_OK
                 )
+            }
+
+            R.id.action_search -> {
+                supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.main_content, SearchFragment())
+                    .addToBackStack("main")
+                    .commit()
+
             }
         }
         return super.onOptionsItemSelected(item)

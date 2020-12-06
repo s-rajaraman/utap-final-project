@@ -22,11 +22,14 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
     private var projects = MutableLiveData<List<Project>>()
     private var tasks = MutableLiveData<List<Task>>()
 
-    companion object { }
+    private var search = MutableLiveData<String>()
+    private var searchResults = MutableLiveData<List<Task>>()
+
+    companion object {}
 
     fun saveProject(project: Project) {
         if (user != null) {
-            if(project.rowID == ""){
+            if (project.rowID == "") {
                 project.rowID = db.collection("projects").document().id
             }
             db.collection("projects/${user.uid}/project").document(project.rowID).set(project)
@@ -42,18 +45,17 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
     fun readProjects() {
         if (user != null) {
             db
-            .collection("projects/${user.uid}/project")
-            .get()
-            .addOnSuccessListener { result ->
-                val projectList = result.documents.mapNotNull {
-                    val obj = it.toObject(Project::class.java)
-                    Log.d("", "${obj?.title}")
-                    obj
+                .collection("projects/${user.uid}/project")
+                .get()
+                .addOnSuccessListener { result ->
+                    val projectList = result.documents.mapNotNull {
+                        val obj = it.toObject(Project::class.java)
+                        Log.d("", "${obj?.title}")
+                        obj
+                    }
+                    projects.postValue(projectList)
                 }
-                projects.postValue(projectList)
-            }
-        }
-        else{
+        } else {
             projects.postValue(arrayListOf())
         }
     }
@@ -73,13 +75,13 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
                     Log.d(TAG, "DocumentSnapshot successfully deleted!")
                     readProjects()
                 }
-                .addOnFailureListener {  e -> Log.w(TAG, "Error deleting document", e)  }
+                .addOnFailureListener { e -> Log.w(TAG, "Error deleting document", e) }
         }
     }
 
     fun saveTask(task: Task) {
         if (user != null) {
-            if(task.rowID == ""){
+            if (task.rowID == "") {
                 task.rowID = db.collection("tasks").document().id
             }
             db.collection("projects/${user.uid}/task").document(task.rowID).set(task)
@@ -100,8 +102,7 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
                     }
                     tasks.postValue(taskList)
                 }
-        }
-        else{
+        } else {
             tasks.postValue(arrayListOf())
         }
     }
@@ -120,8 +121,47 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
                     Log.d(TAG, "DocumentSnapshot successfully deleted!")
                     readTasks()
                 }
-                .addOnFailureListener {  e -> Log.w(TAG, "Error deleting document", e)  }
+                .addOnFailureListener { e -> Log.w(TAG, "Error deleting document", e) }
         }
 
+    }
+
+    private fun filterProjectWithMatchingTag(searchTerm: String, project: Project): Boolean {
+        for (t in project.tags) {
+            if (t.contains(searchTerm)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun filterTaskBySearch(searchTerm: String, task: Task, projectIds: List<String>): Boolean {
+       return projectIds.contains(task.projectId) || task.title?.contains(searchTerm) == true
+    }
+
+    fun updateSearch(str: String) {
+        search.postValue(str)
+
+        if(str == ""){
+            searchResults.postValue(arrayListOf())
+            return
+        }
+
+        val projectsWithMatchingTags =
+            projects
+                .value
+                ?.filter { filterProjectWithMatchingTag(str, it) }
+                ?.map { it.rowID }
+                ?: arrayListOf()
+
+
+        val matchedTasks = tasks.value?.filter { filterTaskBySearch(str, it, projectsWithMatchingTags) }
+
+       searchResults.postValue(matchedTasks)
+
+    }
+
+    fun observeSearchResults(): MutableLiveData<List<Task>> {
+        return searchResults
     }
 }

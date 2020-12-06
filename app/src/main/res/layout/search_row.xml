@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="55dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:textSize="25sp"
+        android:id="@+id/taskTitle"
+        />
+    <TextView
+        app:layout_constraintTop_toBottomOf="@id/taskTitle"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:textSize="15sp"
+        android:id="@+id/projectName"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
