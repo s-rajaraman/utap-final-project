@@ -8,6 +8,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.core.OrderBy
 import edu.utap.rasriram.listman.model.Project
 import edu.utap.rasriram.listman.model.Task
 
@@ -93,6 +95,7 @@ class ProjectViewModel(application: Application, private val state: SavedStateHa
         if (user != null) {
             db
                 .collection("projects/${user.uid}/task")
+                .orderBy("creationTime", Query.Direction.ASCENDING)
                 .get()
                 .addOnSuccessListener { result ->
                     val taskList = result.documents.mapNotNull {
