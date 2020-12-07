@@ -41,17 +41,6 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.title = "Projects"
     }
 
-    override fun onResume() {
-        super.onResume()
-        val mAuth = FirebaseAuth.getInstance()
-
-        val user = mAuth.currentUser
-
-        if (user == null) {
-            signIn()
-        }
-    }
-
     private fun signIn() {
         val providers = arrayListOf(
             AuthUI.IdpConfig.EmailBuilder().build()
@@ -74,7 +63,7 @@ class MainActivity : AppCompatActivity() {
 
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.main_content, fragment)
+            .replace(R.id.main_content, fragment)
             .commit()
     }
 

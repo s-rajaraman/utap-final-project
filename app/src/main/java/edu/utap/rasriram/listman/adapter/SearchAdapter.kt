@@ -48,7 +48,7 @@ class SearchAdapter(
                        it.setBackgroundColor(Color.parseColor("#CCFF0000"))
                         fragmentManger
                             .beginTransaction()
-                            .replace(R.id.main_content, TaskFragment(Project(rowID = proj.rowID)))
+                            .replace(R.id.main_content, TaskFragment(proj))
                             .addToBackStack("project")
                             .commit()
                     }
