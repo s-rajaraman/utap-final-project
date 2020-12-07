@@ -1,7 +1,6 @@
 package edu.utap.rasriram.listman.view
 
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -45,7 +44,7 @@ class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) 
             inflater.inflate(R.layout.task_view, container, false)
 
         adapter = TaskAdapter(viewModel)
-        if(project.rowID.isEmpty()){
+        if (project.rowID.isEmpty()) {
             project.rowID = viewModel.getRowId()
         }
         tasks = viewModel.observeTasks()
@@ -105,10 +104,9 @@ class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) 
     private fun initTitle(view: View) {
         val titleET = view.findViewById<EditText>(R.id.titleET)
         titleET.setText(project.title)
-        if(project.isDefault) {
-           titleET.isEnabled = false
-        }
-        else {
+        if (project.isDefault) {
+            titleET.isEnabled = false
+        } else {
 
             titleET.setOnFocusChangeListener { textView, b ->
                 project.title = titleET.text.toString()
@@ -123,7 +121,12 @@ class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) 
 
         for (t in project.tags) {
             val tv = TextView(view.context)
-            tv.text = t
+            if (t.length > 8) {
+                tv.text = t.take(6) + "..."
+            } else {
+
+                tv.text = t
+            }
             val params = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
             params.setMargins(4, 0, 4, 0)
             tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15F)
@@ -149,7 +152,7 @@ class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) 
             editText.setOnEditorActionListener { textView, i, keyEvent ->
                 if (keyEvent.keyCode == 66) {
                     val enteredText = editText.text.toString()
-                    val tag = when(enteredText.length) {
+                    val tag = when (enteredText.length) {
                         0 -> return@setOnEditorActionListener false
                         1 -> " $enteredText "
                         2 -> "$enteredText "
@@ -157,7 +160,11 @@ class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) 
 
                     }
                     val tv = TextView(view.context)
-                    tv.text = tag
+                    if (tag.length > 8) {
+                        tv.text = tag.take(6) + ".."
+                    } else {
+                        tv.text = tag
+                    }
                     val params = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
                     params.setMargins(4, 0, 4, 0)
                     tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15F)
@@ -173,12 +180,12 @@ class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) 
                         return@setOnLongClickListener true
                     }
 
-                    if (tv.text.toString() != "") {
+                    if (tv.text.toString() != "" && project.tags.count() < 6) {
                         project.tags.add(tag)
                         viewModel.saveProject(project)
+                        linearLayout.addView(tv, linearLayout.childCount - 1)
                     }
 
-                    linearLayout.addView(tv, linearLayout.childCount - 1)
                     editText.text.clear()
 
                     return@setOnEditorActionListener true
@@ -188,7 +195,7 @@ class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) 
         }
     }
 
-    inner class SwipeToMove: ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+    inner class SwipeToMove : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
         override fun onMove(
             recyclerView: RecyclerView,
             viewHolder: RecyclerView.ViewHolder,
@@ -233,16 +240,21 @@ class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) 
             actionState: Int,
             isCurrentlyActive: Boolean
         ) {
-            if(isCurrentlyActive) {
+            if (isCurrentlyActive) {
                 val itemView = viewHolder.itemView
 
                 val color = Color.parseColor("#89cff0")
                 val background = ColorDrawable(color)
-                background.setBounds(itemView.left , itemView.top, itemView.left + dX.toInt(), itemView.bottom)
+                background.setBounds(
+                    itemView.left,
+                    itemView.top,
+                    itemView.left + dX.toInt(),
+                    itemView.bottom
+                )
 
                 background.draw(c)
 
-                val y =   (itemView.top - itemView.bottom)/2 + itemView.bottom.toFloat() + 10
+                val y = (itemView.top - itemView.bottom) / 2 + itemView.bottom.toFloat() + 10
 
                 val paint = Paint()
                 paint.color = Color.WHITE
@@ -284,11 +296,16 @@ class TaskFragment(private var project: Project) : Fragment(R.layout.task_view) 
             val itemView = viewHolder.itemView
 
             val background = ColorDrawable(Color.RED)
-            background.setBounds(itemView.right + dX.toInt(), itemView.top, itemView.right, itemView.bottom)
+            background.setBounds(
+                itemView.right + dX.toInt(),
+                itemView.top,
+                itemView.right,
+                itemView.bottom
+            )
 
             background.draw(c)
 
-            val y =   (itemView.top - itemView.bottom)/2 + itemView.bottom.toFloat() + 10
+            val y = (itemView.top - itemView.bottom) / 2 + itemView.bottom.toFloat() + 10
 
             val paint = Paint()
             paint.color = Color.WHITE
